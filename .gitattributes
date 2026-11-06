@@ -4,3 +4,5 @@
 *.csproj text eol=crlf
 *.sln text eol=crlf
 *.config text eol=crlf
+# readme.txt v balíčku releasu čte uživatel v Poznámkovém bloku
+*.txt text eol=crlf

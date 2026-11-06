@@ -106,7 +106,10 @@ Bez něj platí výchozí hodnoty.
    Otisk SHA-256 ZIPu je v popisu releasu, ověřit ho můžete v PowerShellu: `Get-FileHash fowler-script-runner-<verze>.zip`.
 2. Program není digitálně podepsaný. Před rozbalením otevřete Vlastnosti staženého ZIPu a zaškrtněte
    **Odblokovat**, jinak může Windows nebo antivir spuštění zastavit.
-3. Rozbalte ZIP do složky Fowleru. Vznikne složka `spoustec` s programem, dokumentací a příklady.
+3. Rozbalte ZIP do složky Fowleru. Vznikne složka `spoustec` s programem, dokumentací a příklady. Krátký návod
+   k nastavení ve Fowleru je v `readme.txt`. Složka `skripty` obsahuje bezpečnou ukázku (kopie
+   [priklady/ukazka](priklady/ukazka)): nic nehodnotí a do polí okna nic nevloží, jen do zprávy popíše předaná data.
+   Spouštěč ji použije, když ve Fowleru není zadaná složka skriptů, takže lze hned vyzkoušet, že předání funguje.
 
 Program běží bez instalace a bez práv správce z libovolné složky. Potřebuje .NET Framework 4.8, který je součástí
 Windows 10 a 11.
@@ -245,6 +248,7 @@ docs/skripty.md           rozhraní skriptů, pod-skripty, běh, limity, testova
 priklady/                 vzorová data (smyšlený pacient) a testy k ukázce
 priklady/sablona/         šablona složky skriptů pracoviště (nic neurčí, dokud pracoviště nedoplní pod-skripty)
 priklady/ukazka/          ukázka čtení dat a techniky výpočtu (výpočet bez audiologického významu, nic nehodnotí)
+release/readme.txt        krátký návod k nastavení ve Fowleru do ZIPu releasu
 src/Spoustec/             zdrojový kód spouštěče (C#, .NET Framework 4.8)
 tests/                    automatické testy spouštěče (syntetické skripty, nejsou součástí releasu)
 .github/workflows/        překlad a testy (build.yml), release při tagu v* (release.yml)

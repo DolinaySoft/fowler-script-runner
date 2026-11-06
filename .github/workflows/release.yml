@@ -1,5 +1,6 @@
-# Release pri tagu v* (napr. v1.0.0): preklad s verzi z tagu, testy, ZIP s programem, dokumentaci a priklady,
-# SHA-256 ZIPu do popisu releasu. Exe se podepise jen kdyz jsou nastavena tajemstvi PODPIS_PFX_BASE64
+# Release pri tagu v* (napr. v1.0.0): preklad s verzi z tagu, testy, ZIP s programem, dokumentaci, priklady,
+# readme.txt (nastaveni ve Fowleru) a slozkou skripty s bezpecnou ukazkou (kopie priklady/ukazka, nic nehodnoti;
+# spoustec ji pouzije, kdyz ve Fowleru neni zadana slozka skriptu), SHA-256 ZIPu do popisu releasu. Exe se podepise jen kdyz jsou nastavena tajemstvi PODPIS_PFX_BASE64
 # (certifikat PFX v base64) a PODPIS_HESLO; bez nich je release nepodepsany.
 name: release
 
@@ -67,8 +68,10 @@ jobs:
           $program = 'src/Spoustec/bin/Release/net48'
           Copy-Item "$program/spoustec.exe", "$program/spoustec.exe.config" $cil
           Copy-Item "$program/*.dll" $cil
-          Copy-Item README.md, LICENSE, THIRD-PARTY-NOTICES.md $cil
+          Copy-Item README.md, AGENTS.md, LICENSE, THIRD-PARTY-NOTICES.md, release/readme.txt $cil
           Copy-Item docs, priklady -Destination $cil -Recurse
+          # vychozi slozka skriptu = bezpecna ukazka (PrikladyTesty: zadne pole hodnoceni)
+          Copy-Item priklady/ukazka -Destination (Join-Path $cil 'skripty') -Recurse
           $zip = "fowler-script-runner-$verze.zip"
           Compress-Archive -Path $cil -DestinationPath $zip
           Get-ChildItem $cil -Recurse -File | ForEach-Object { $_.FullName.Substring($balik.Length + 1) }
@@ -91,6 +94,8 @@ jobs:
             ('SHA-256: `' + '${{ steps.zip.outputs.sha256 }}' + '`')
             ''
             'Požadavky: Windows 10 nebo 11 s .NET Framework 4.8, bez instalace a bez práv správce. JavaScript interpretuje Jint 4.17.0.'
+            ''
+            'ZIP obsahuje složku spoustec: program, dokumentaci, šablonu a ukázky (priklady), readme.txt s nastavením ve Fowleru a složku skripty s bezpečnou ukázkou, kterou spouštěč použije, když ve Fowleru není zadaná složka skriptů. Ukázka nic nehodnotí a do polí okna nic nevloží, jen do zprávy popíše předaná data a ukázkový výpočet bez audiologického významu.'
           )
           if ('${{ env.PODEPSAT }}' -ne 'true') {
             $radky += ''
