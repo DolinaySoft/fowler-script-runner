@@ -1,0 +1,102 @@
+# Release pri tagu v* (napr. v1.0.0): preklad s verzi z tagu, testy, ZIP s programem, dokumentaci a priklady,
+# SHA-256 ZIPu do popisu releasu. Exe se podepise jen kdyz jsou nastavena tajemstvi PODPIS_PFX_BASE64
+# (certifikat PFX v base64) a PODPIS_HESLO; bez nich je release nepodepsany.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      PODEPSAT: ${{ secrets.PODPIS_PFX_BASE64 != '' }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verze z tagu
+        id: verze
+        run: |
+          $verze = '${{ github.ref_name }}'.Substring(1)
+          if ($verze -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "Tag ${{ github.ref_name }} neni ve tvaru v1.2.3" }
+          "verze=$verze" >> $env:GITHUB_OUTPUT
+
+      - name: Preklad
+        run: dotnet build fowler-script-runner.sln -c Release -p:Version=${{ steps.verze.outputs.verze }}
+
+      - name: Testy
+        run: dotnet test fowler-script-runner.sln -c Release --no-build --logger "console;verbosity=normal"
+
+      - name: Kontrola verze programu
+        run: |
+          $verze = (Get-Item src/Spoustec/bin/Release/net48/spoustec.exe).VersionInfo.ProductVersion
+          if ($verze -ne '${{ steps.verze.outputs.verze }}') { throw "Verze programu $verze neodpovida tagu ${{ github.ref_name }}" }
+
+      - name: Podepsani exe
+        if: env.PODEPSAT == 'true'
+        env:
+          PODPIS_PFX: ${{ secrets.PODPIS_PFX_BASE64 }}
+          PODPIS_HESLO: ${{ secrets.PODPIS_HESLO }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'podpis.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PODPIS_PFX))
+          try {
+            $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+              Sort-Object FullName -Descending | Select-Object -First 1
+            & $signtool.FullName sign /fd SHA256 /f $pfx /p $env:PODPIS_HESLO /tr http://timestamp.digicert.com /td SHA256 `
+              src/Spoustec/bin/Release/net48/spoustec.exe
+            if ($LASTEXITCODE -ne 0) { throw "Podepsani selhalo" }
+          } finally {
+            Remove-Item $pfx -ErrorAction SilentlyContinue
+          }
+
+      - name: ZIP
+        id: zip
+        run: |
+          $verze = '${{ steps.verze.outputs.verze }}'
+          $balik = Join-Path $env:RUNNER_TEMP 'balik'
+          $cil = Join-Path $balik 'spoustec'
+          New-Item -ItemType Directory -Force $cil | Out-Null
+          $program = 'src/Spoustec/bin/Release/net48'
+          Copy-Item "$program/spoustec.exe", "$program/spoustec.exe.config" $cil
+          Copy-Item "$program/*.dll" $cil
+          Copy-Item README.md, LICENSE, THIRD-PARTY-NOTICES.md $cil
+          Copy-Item docs, priklady -Destination $cil -Recurse
+          $zip = "fowler-script-runner-$verze.zip"
+          Compress-Archive -Path $cil -DestinationPath $zip
+          Get-ChildItem $cil -Recurse -File | ForEach-Object { $_.FullName.Substring($balik.Length + 1) }
+          $sha = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "zip=$zip" >> $env:GITHUB_OUTPUT
+          "sha256=$sha" >> $env:GITHUB_OUTPUT
+
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $verze = '${{ steps.verze.outputs.verze }}'
+          $zip = '${{ steps.zip.outputs.zip }}'
+          $radky = @(
+            "Spouštěč skriptů pracoviště pro Fowler, verze $verze."
+            ''
+            'Obecné rozhraní pro spuštění skriptu pracoviště nad daty z Fowleru. Spouštěč spustí skript v JavaScriptu (funkce hodnot(data)) nad předanými daty bez údajů o pacientovi, jeho výstup formálně zkontroluje podle formátu fowler-eval a předá Fowleru. Sám nic nepočítá ani nevyhodnocuje. Za skript a jeho výsledky odpovídá pracoviště, které ho vytvoří a používá (README, část Odpovědnost).'
+            ''
+            "Soubor: $zip"
+            ('SHA-256: `' + '${{ steps.zip.outputs.sha256 }}' + '`')
+            ''
+            'Požadavky: Windows 10 nebo 11 s .NET Framework 4.8, bez instalace a bez práv správce. JavaScript interpretuje Jint 4.17.0.'
+          )
+          if ('${{ env.PODEPSAT }}' -ne 'true') {
+            $radky += ''
+            $radky += 'Program není digitálně podepsaný. Před rozbalením otevřete Vlastnosti staženého ZIPu a zaškrtněte Odblokovat.'
+          }
+          $radky -join "`n" | Set-Content poznamky.md -Encoding utf8
+          $dalsi = @()
+          if ($verze.StartsWith('0.') -or $verze.Contains('-')) { $dalsi += '--prerelease' }
+          gh release create '${{ github.ref_name }}' $zip --title "spoustec $verze" --notes-file poznamky.md @dalsi

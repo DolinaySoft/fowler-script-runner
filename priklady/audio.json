@@ -1,0 +1,152 @@
+{
+  "fmt": "fowler-exam",
+  "v": 1,
+  "app": "Fowler 3.0.0.123",
+  "created": "2026-10-29T10:15:31",
+  "patient": {
+    "pid": "4F0C1E2A-7B3D-4C55-9E21-0A6B3D9F1C77",
+    "rc": "5704150000",
+    "firstName": "Jan",
+    "lastName": "Novák",
+    "birthDate": "1957-04-15",
+    "insurance": "111"
+  },
+  "exam": {
+    "time": "2026-10-28T09:42:00",
+    "age": {
+      "y": 69,
+      "m": 6
+    },
+    "sex": "M"
+  },
+  "audio": {
+    "legacy": false,
+    "device": "MA 42",
+    "note": "Pacient udává tinnitus vpravo.\nSpolupráce dobrá.",
+    "hz": [
+      125,
+      250,
+      500,
+      1000,
+      1500,
+      2000,
+      3000,
+      4000,
+      6000,
+      8000
+    ],
+    "R": {
+      "ac": [
+        15,
+        15,
+        20,
+        25,
+        30,
+        40,
+        55,
+        60,
+        70,
+        "NR"
+      ],
+      "bc": [
+        null,
+        10,
+        15,
+        20,
+        25,
+        35,
+        50,
+        55,
+        null,
+        null
+      ],
+      "bcMask": [
+        null,
+        40,
+        45,
+        50,
+        50,
+        60,
+        70,
+        70,
+        null,
+        null
+      ],
+      "ucl": [
+        null,
+        null,
+        100,
+        100,
+        null,
+        95,
+        null,
+        95,
+        null,
+        null
+      ],
+      "mcl": [
+        null,
+        null,
+        70,
+        70,
+        null,
+        75,
+        null,
+        80,
+        null,
+        null
+      ],
+      "sisi": [
+        null,
+        null,
+        null,
+        10,
+        null,
+        20,
+        60,
+        85,
+        null,
+        null
+      ]
+    },
+    "L": {
+      "ac": [
+        30,
+        35,
+        45,
+        50,
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ],
+      "acMasked": true,
+      "acMask": [
+        null,
+        null,
+        60,
+        65,
+        null,
+        70,
+        null,
+        75,
+        null,
+        null
+      ],
+      "bc": [
+        null,
+        10,
+        15,
+        15,
+        20,
+        30,
+        45,
+        50,
+        null,
+        null
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- spoustec.exe: spousti skript pracoviste nad daty predanymi z Fowleru (popis v README.md v koreni repozitare).
+       WinExe bez okna, aby pri spusteni z Fowleru neblikla konzole. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>spoustec</AssemblyName>
+    <RootNamespace>Spoustec</RootNamespace>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <!-- verze: release ji predava z tagu (-p:Version=1.2.3), mistni preklad je 0.0.0-dev -->
+    <Version>0.0.0-dev</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Product>fowler-script-runner</Product>
+    <AssemblyTitle>spoustec</AssemblyTitle>
+    <Description>Spouštěč skriptů pracoviště pro Fowler: spustí skript nad předanými daty a jeho výstup formálně zkontroluje, sám nic nevyhodnocuje.</Description>
+    <Company>Viliam Dolinay</Company>
+    <Copyright>Copyright © 2026 Viliam Dolinay, licence MIT</Copyright>
+    <NeutralLanguage>cs</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jint" Version="4.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Spoustec.Tests" />
+  </ItemGroup>
+
+</Project>

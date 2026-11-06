@@ -1,0 +1,13 @@
+# Visual Studio, překlad, testy
+.vs/
+bin/
+obj/
+*.user
+TestResults/
+
+# Soubory z běhu spouštěče (log, výpis --run, protokoly --test, místní nastavení limitů)
+*.log
+*.log.old
+spoustec-run.txt
+spoustec.ini
+protokol-*.txt

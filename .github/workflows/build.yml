@@ -1,0 +1,22 @@
+# Preklad a testy spoustece pri kazdem push a pull requestu
+name: build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preklad
+        run: dotnet build fowler-script-runner.sln -c Release
+
+      - name: Testy
+        run: dotnet test fowler-script-runner.sln -c Release --no-build --logger "console;verbosity=normal"
